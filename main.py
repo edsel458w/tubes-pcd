@@ -378,6 +378,14 @@ class AplikasiPisang(QMainWindow):
             self.tabel.setItem(i, 1, QTableWidgetItem(""))
 
     # ====================== FUNGSI BANTU TAMPIL GAMBAR ======================
+    def tentang(self):
+        QMessageBox.information(
+            self,
+            "Tentang",
+            "Aplikasi Klasifikasi Kematangan Buah Pisang \n"
+            "Menggunakan pengolahan citra digital untuk segmentasi dan ekstraksi ciri.",
+        )
+
     def tampilkan_gambar(self, img, label):
         if len(img.shape) == 2:
             h, w = img.shape
