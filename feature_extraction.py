@@ -65,3 +65,5 @@ def ciri_ke_list(ciri):
         ciri["Area"]
     ]
     return data
+
+

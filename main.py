@@ -360,19 +360,7 @@ class AplikasiPisang(QMainWindow):
     #     self.label_hasil.setText("Hasil Klasifikasi : " + hasil)
     #     self.label_info.setText("KNN K=5 selesai | model dari model_knn.pkl")
 
-    # ====================== FUNGSI BANTUAN ======================
-    def tentang(self):
-        teks = ("Aplikasi Klasifikasi Kematangan Buah Pisang Ambon\n"
-                "Metode: K-Nearest Neighbor (KNN)\n"
-                "Ciri: RGB, HSV, dan Area\n\n"
-                "Alur penggunaan:\n"
-                "1. Training > Jalankan Training (sekali saja)\n"
-                "2. File > Load Citra\n"
-                "3. Preprocessing > Grayscale > Biner\n"
-                "4. Segmentasi > Otsu > Morfologi\n"
-                "5. Ekstraksi Ciri\n"
-                "6. Klasifikasi KNN")
-        QMessageBox.information(self, "Tentang", teks)
+    
 
     # ====================== RESET ======================
     def reset(self):
