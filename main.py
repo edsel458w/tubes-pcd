@@ -9,10 +9,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 
-import imageacquisition as akuisisi  # TODO: imageacquisition.py ada tapi fungsi baca_gambar belum dibuat
+import imageacquisition as akuisisi
 import preprocessing as prep
-# import segmentasi as seg              # TODO: buat segmentasi.py
-# import feature_extraction as fitur    # TODO: buat feature_extraction.py
+import segmentasi as seg
+import feature_extraction as fitur
 # import classification as klasifikasi  # TODO: buat classification.py
 
 
@@ -44,11 +44,10 @@ class AplikasiPisang(QMainWindow):
         aksi_load.triggered.connect(self.load_citra)
         menu_file.addAction(aksi_load)
 
-        # TODO: save_hasil butuh hasil segmentasi (segmentasi.py)
-        # aksi_save = QAction("Save Hasil Segmentasi", self)
-        # aksi_save.setShortcut("Ctrl+S")
-        # aksi_save.triggered.connect(self.save_hasil)
-        # menu_file.addAction(aksi_save)
+        aksi_save = QAction("Save Hasil Segmentasi", self)
+        aksi_save.setShortcut("Ctrl+S")
+        aksi_save.triggered.connect(self.save_hasil)
+        menu_file.addAction(aksi_save)
 
         menu_file.addSeparator()
 
@@ -87,23 +86,29 @@ class AplikasiPisang(QMainWindow):
         aksi_biner.triggered.connect(self.proses_biner)
         menu_prep.addAction(aksi_biner)
 
-        # ============ menu Segmentasi ============  # TODO: buat segmentasi.py
-        # menu_seg = menubar.addMenu("Segmentasi")
+        # ============ menu Segmentasi ============
+        menu_seg = menubar.addMenu("Segmentasi")
 
-        # aksi_otsu = QAction("Segmentasi Otsu", self)
-        # aksi_otsu.triggered.connect(self.proses_segmentasi)
-        # menu_seg.addAction(aksi_otsu)
+        aksi_otsu = QAction("Segmentasi Otsu", self)
+        aksi_otsu.triggered.connect(self.proses_segmentasi)
+        menu_seg.addAction(aksi_otsu)
 
-        # aksi_morfologi = QAction("Operasi Morfologi", self)
-        # aksi_morfologi.triggered.connect(self.proses_morfologi)
-        # menu_seg.addAction(aksi_morfologi)
+        menu_morfologi = menu_seg.addMenu("Operasi Morfologi")
 
-        # ============ menu Ekstraksi Ciri ============  # TODO: buat feature_extraction.py
-        # menu_ekstraksi = menubar.addMenu("Ekstraksi Ciri")
+        aksi_closing = QAction("Closing", self)
+        aksi_closing.triggered.connect(self.proses_closing)
+        menu_morfologi.addAction(aksi_closing)
 
-        # aksi_ekstraksi = QAction("Ekstraksi RGB, HSV, Area", self)
-        # aksi_ekstraksi.triggered.connect(self.proses_ekstraksi)
-        # menu_ekstraksi.addAction(aksi_ekstraksi)
+        aksi_opening = QAction("Opening", self)
+        aksi_opening.triggered.connect(self.proses_opening)
+        menu_morfologi.addAction(aksi_opening)
+
+        # ============ menu Ekstraksi Ciri ============
+        menu_ekstraksi = menubar.addMenu("Ekstraksi Ciri")
+
+        aksi_ekstraksi = QAction("Ekstraksi RGB, HSV, Area", self)
+        aksi_ekstraksi.triggered.connect(self.proses_ekstraksi)
+        menu_ekstraksi.addAction(aksi_ekstraksi)
 
         # ============ menu Klasifikasi ============  # TODO: buat classification.py
         # menu_klasifikasi = menubar.addMenu("Klasifikasi")
@@ -244,18 +249,18 @@ class AplikasiPisang(QMainWindow):
         self.judul_hasil.setText("Hasil Proses")
         self.tampilkan_gambar(img, self.label_asli)
 
-    # def save_hasil(self):
-    #     if self.hasil_segmentasi is None:
-    #         QMessageBox.warning(self, "Peringatan", "Belum ada hasil yang bisa disimpan")
-    #         return
-    #
-    #     dialog = QFileDialog.getSaveFileName(self, "Simpan Gambar", "hasil.png", "Images (*.png *.jpg)")
-    #     path_simpan = dialog[0]
-    #     if path_simpan == "":
-    #         return
-    #
-    #     cv2.imwrite(path_simpan, self.hasil_segmentasi)
-    #     QMessageBox.information(self, "Info", "Gambar berhasil disimpan")
+    def save_hasil(self):
+        if self.hasil_segmentasi is None:
+            QMessageBox.warning(self, "Peringatan", "Belum ada hasil yang bisa disimpan")
+            return
+
+        dialog = QFileDialog.getSaveFileName(self, "Simpan Gambar", "hasil.png", "Images (*.png *.jpg)")
+        path_simpan = dialog[0]
+        if path_simpan == "":
+            return
+
+        cv2.imwrite(path_simpan, self.hasil_segmentasi)
+        QMessageBox.information(self, "Info", "Gambar berhasil disimpan")
 
     # ====================== FUNGSI PREPROCESSING ======================
     def proses_grayscale(self):
@@ -279,51 +284,66 @@ class AplikasiPisang(QMainWindow):
         self.label_info.setText("Grayscale dikonversi ke Biner dengan threshold = 127")
         self.tampilkan_gambar(biner, self.label_hasil_proses)
 
-    # ====================== FUNGSI SEGMENTASI ======================  # TODO: buat segmentasi.py
-    # def proses_segmentasi(self):
-    #     if self.img_asli is None:
-    #         QMessageBox.warning(self, "Peringatan", "Load citra terlebih dahulu melalui menu File > Load Citra")
-    #         return
-    #
-    #     hasil_otsu, nilai_t = seg.segmentasi_otsu(self.img_asli)
-    #     self.mask = hasil_otsu
-    #
-    #     self.judul_hasil.setText("Hasil Segmentasi Otsu")
-    #     self.label_info.setText("Threshold Otsu optimal = " + str(round(nilai_t, 2)) + " (dicari otomatis)")
-    #     self.tampilkan_gambar(hasil_otsu, self.label_hasil_proses)
+    # ====================== FUNGSI SEGMENTASI ======================
+    def proses_segmentasi(self):
+        if self.img_asli is None:
+            QMessageBox.warning(self, "Peringatan", "Load citra terlebih dahulu melalui menu File > Load Citra")
+            return
 
-    # def proses_morfologi(self):
-    #     if self.mask is None:
-    #         QMessageBox.warning(self, "Peringatan", "Lakukan Segmentasi Otsu terlebih dahulu")
-    #         return
-    #
-    #     mask_bersih = seg.morfologi(self.mask)
-    #     self.mask = mask_bersih
-    #
-    #     hasil = seg.terapkan_mask(self.img_asli, mask_bersih)
-    #     self.hasil_segmentasi = hasil
-    #
-    #     self.judul_hasil.setText("Hasil Morfologi (Closing + Opening)")
-    #     self.label_info.setText("Closing: tutup lubang dalam objek | Opening: buang noise di luar objek")
-    #     self.tampilkan_gambar(hasil, self.label_hasil_proses)
+        hasil_otsu, nilai_t = seg.segmentasi_otsu(self.img_asli)
+        self.mask = hasil_otsu
 
-    # ====================== FUNGSI EKSTRAKSI CIRI ======================  # TODO: buat feature_extraction.py
-    # def proses_ekstraksi(self):
-    #     if self.mask is None:
-    #         QMessageBox.warning(self, "Peringatan", "Lakukan segmentasi terlebih dahulu melalui menu Segmentasi")
-    #         return
-    #
-    #     ciri = fitur.ekstraksi_ciri(self.img_asli, self.mask)
-    #     self.ciri_sekarang = ciri
-    #
-    #     urutan = ["R", "G", "B", "H", "S", "V", "Area"]
-    #     for i in range(len(urutan)):
-    #         key = urutan[i]
-    #         nilai = ciri[key]
-    #         teks = str(nilai) if key == "Area" else str(round(nilai, 4))
-    #         self.tabel.setItem(i, 1, QTableWidgetItem(teks))
-    #
-    #     self.label_info.setText("Ekstraksi ciri RGB, HSV, dan Area dari area objek selesai")
+        self.judul_hasil.setText("Hasil Segmentasi Otsu")
+        self.label_info.setText("Threshold Otsu optimal = " + str(round(nilai_t, 2)) + " (dicari otomatis)")
+        self.tampilkan_gambar(hasil_otsu, self.label_hasil_proses)
+
+    def proses_closing(self):
+        if self.mask is None:
+            QMessageBox.warning(self, "Peringatan", "Lakukan Segmentasi Otsu terlebih dahulu")
+            return
+
+        mask_closing = seg.closing(self.mask)
+        self.mask = mask_closing
+
+        hasil = seg.terapkan_mask(self.img_asli, mask_closing)
+        self.hasil_segmentasi = hasil
+
+        self.judul_hasil.setText("Hasil Closing")
+        self.label_info.setText("Closing: menutup lubang kecil di dalam objek pisang")
+        self.tampilkan_gambar(hasil, self.label_hasil_proses)
+
+    def proses_opening(self):
+        if self.mask is None:
+            QMessageBox.warning(self, "Peringatan", "Lakukan Segmentasi Otsu terlebih dahulu")
+            return
+
+        mask_opening = seg.opening(self.mask)
+        self.mask = mask_opening
+
+        hasil = seg.terapkan_mask(self.img_asli, mask_opening)
+        self.hasil_segmentasi = hasil
+
+        self.judul_hasil.setText("Hasil Opening")
+        self.label_info.setText("Opening: membuang noise kecil di luar objek pisang")
+        self.tampilkan_gambar(hasil, self.label_hasil_proses)
+
+    # ====================== FUNGSI EKSTRAKSI CIRI ======================
+    def proses_ekstraksi(self):
+        if self.mask is None:
+            QMessageBox.warning(self, "Peringatan", "Lakukan segmentasi terlebih dahulu melalui menu Segmentasi")
+            return
+
+        ciri = fitur.ekstraksi_ciri(self.img_asli, self.mask)
+        self.ciri_sekarang = ciri
+
+        urutan = ["R", "G", "B", "H", "S", "V", "Area"]
+        for i in range(len(urutan)):
+            key = urutan[i]
+            nilai = ciri[key]
+            teks = str(nilai) if key == "Area" else str(round(nilai, 4))
+            self.tabel.setItem(i, 1, QTableWidgetItem(teks))
+
+        self.label_info.setText("Ekstraksi ciri RGB, HSV, dan Area dari area objek selesai")
 
     # ====================== FUNGSI KLASIFIKASI ======================  # TODO: buat feature_extraction.py & classification.py
     # def proses_klasifikasi(self):
