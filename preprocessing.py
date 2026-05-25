@@ -15,3 +15,6 @@ def rgb_ke_grayscale(img):
 def grayscale_ke_biner(gray):
     _, biner = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
     return biner
+
+def bgr_ke_rgb(img):
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
