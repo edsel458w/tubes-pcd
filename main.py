@@ -82,10 +82,6 @@ class AplikasiPisang(QMainWindow):
         aksi_grayscale.triggered.connect(self.proses_grayscale)
         menu_prep.addAction(aksi_grayscale)
 
-        aksi_biner = QAction("Konversi Citra Biner", self)
-        aksi_biner.triggered.connect(self.proses_biner)
-        menu_prep.addAction(aksi_biner)
-
         # ============ menu Segmentasi ============
         menu_seg = menubar.addMenu("Segmentasi")
 
@@ -272,17 +268,6 @@ class AplikasiPisang(QMainWindow):
         self.judul_hasil.setText("Hasil Grayscale")
         self.label_info.setText("Citra RGB dikonversi ke Grayscale (1 channel intensitas)")
         self.tampilkan_gambar(gray, self.label_hasil_proses)
-
-    def proses_biner(self):
-        if self.img_asli is None:
-            QMessageBox.warning(self, "Peringatan", "Load citra terlebih dahulu melalui menu File > Load Citra")
-            return
-
-        gray = prep.rgb_ke_grayscale(self.img_asli)
-        biner = prep.grayscale_ke_biner(gray)
-        self.judul_hasil.setText("Hasil Citra Biner")
-        self.label_info.setText("Grayscale dikonversi ke Biner dengan threshold = 127")
-        self.tampilkan_gambar(biner, self.label_hasil_proses)
 
     # ====================== FUNGSI SEGMENTASI ======================
     def proses_segmentasi(self):
