@@ -13,7 +13,7 @@ import imageacquisition as akuisisi
 import preprocessing as prep
 import segmentasi as seg
 import feature_extraction as fitur
-# import classification as klasifikasi  # TODO: buat classification.py
+import classification as klasifikasi
 
 
 class AplikasiPisang(QMainWindow):
@@ -29,8 +29,7 @@ class AplikasiPisang(QMainWindow):
 
         self.buat_menu()
         self.buat_tampilan()
-
-        # self.cek_model_tersedia()  # TODO: butuh classification.py
+        self.cek_model_tersedia()
 
     def buat_menu(self):
         menubar = self.menuBar()
@@ -38,7 +37,6 @@ class AplikasiPisang(QMainWindow):
         # ============ menu File ============
         menu_file = menubar.addMenu("File")
 
-        # TODO: load_citra butuh imageacquisition.py (baca_gambar)
         aksi_load = QAction("Load Citra", self)
         aksi_load.setShortcut("Ctrl+O")
         aksi_load.triggered.connect(self.load_citra)
@@ -63,17 +61,17 @@ class AplikasiPisang(QMainWindow):
         aksi_keluar.triggered.connect(self.close)
         menu_file.addAction(aksi_keluar)
 
-        # ============ menu Training ============  # TODO: buat training.py & classification.py
-        # menu_training = menubar.addMenu("Training")
+        # ============ menu Training ============
+        menu_training = menubar.addMenu("Training")
 
-        # aksi_training = QAction("Jalankan Training", self)
-        # aksi_training.setShortcut("Ctrl+T")
-        # aksi_training.triggered.connect(self.jalankan_training)
-        # menu_training.addAction(aksi_training)
+        aksi_training = QAction("Jalankan Training", self)
+        aksi_training.setShortcut("Ctrl+T")
+        aksi_training.triggered.connect(self.jalankan_training)
+        menu_training.addAction(aksi_training)
 
-        # aksi_cek_model = QAction("Cek Status Model", self)
-        # aksi_cek_model.triggered.connect(self.cek_status_model)
-        # menu_training.addAction(aksi_cek_model)
+        aksi_cek_model = QAction("Cek Status Model", self)
+        aksi_cek_model.triggered.connect(self.cek_status_model)
+        menu_training.addAction(aksi_cek_model)
 
         # ============ menu Preprocessing ============
         menu_prep = menubar.addMenu("Preprocessing")
@@ -106,12 +104,12 @@ class AplikasiPisang(QMainWindow):
         aksi_ekstraksi.triggered.connect(self.proses_ekstraksi)
         menu_ekstraksi.addAction(aksi_ekstraksi)
 
-        # ============ menu Klasifikasi ============  # TODO: buat classification.py
-        # menu_klasifikasi = menubar.addMenu("Klasifikasi")
+        # ============ menu Klasifikasi ============
+        menu_klasifikasi = menubar.addMenu("Klasifikasi")
 
-        # aksi_knn = QAction("Klasifikasi KNN", self)
-        # aksi_knn.triggered.connect(self.proses_klasifikasi)
-        # menu_klasifikasi.addAction(aksi_knn)
+        aksi_knn = QAction("Klasifikasi KNN (K=5)", self)
+        aksi_knn.triggered.connect(self.proses_klasifikasi)
+        menu_klasifikasi.addAction(aksi_knn)
 
         # ============ menu Bantuan ============
         menu_bantuan = menubar.addMenu("Bantuan")
@@ -125,12 +123,10 @@ class AplikasiPisang(QMainWindow):
         self.setCentralWidget(widget_tengah)
         layout_utama = QVBoxLayout(widget_tengah)
 
-        # ---- status nama file ----
         self.label_nama = QLabel("Belum ada gambar yang dimuat")
         self.label_nama.setAlignment(Qt.AlignCenter)
         layout_utama.addWidget(self.label_nama)
 
-        # ---- area gambar ----
         baris_gambar = QHBoxLayout()
 
         kolom1 = QVBoxLayout()
@@ -157,13 +153,11 @@ class AplikasiPisang(QMainWindow):
         baris_gambar.addLayout(kolom2)
         layout_utama.addLayout(baris_gambar)
 
-        # ---- info proses ----
         self.label_info = QLabel("")
         self.label_info.setAlignment(Qt.AlignCenter)
         self.label_info.setStyleSheet("color: gray; font-size: 11px")
         layout_utama.addWidget(self.label_info)
 
-        # ---- tabel ciri ----
         self.tabel = QTableWidget()
         self.tabel.setColumnCount(2)
         self.tabel.setHorizontalHeaderLabels(["Ciri", "Nilai"])
@@ -173,58 +167,67 @@ class AplikasiPisang(QMainWindow):
             self.tabel.setItem(i, 0, QTableWidgetItem(nama_ciri[i]))
         layout_utama.addWidget(self.tabel)
 
-        # ---- hasil klasifikasi ----
         self.label_hasil = QLabel("Hasil Klasifikasi : -")
         self.label_hasil.setAlignment(Qt.AlignCenter)
         self.label_hasil.setStyleSheet("font-size: 18px; font-weight: bold")
         layout_utama.addWidget(self.label_hasil)
 
-    # ====================== CEK MODEL ======================  # TODO: butuh classification.py
-    # def cek_model_tersedia(self):
-    #     if klasifikasi.model_tersedia():
-    #         self.label_info.setText("Model KNN sudah tersedia dan siap digunakan")
-    #     else:
-    #         self.label_info.setText("Model belum ada - jalankan Training > Jalankan Training terlebih dahulu")
+    # ====================== CEK MODEL ======================
+    def cek_model_tersedia(self):
+        if klasifikasi.model_tersedia():
+            self.label_info.setText("Model KNN sudah tersedia dan siap digunakan")
+        else:
+            self.label_info.setText(
+                "Model belum ada - jalankan Training > Jalankan Training terlebih dahulu"
+            )
 
-    # def cek_status_model(self):
-    #     if klasifikasi.model_tersedia():
-    #         QMessageBox.information(self, "Status Model", "Model KNN sudah tersedia\nFile: model_knn.pkl\n\nAplikasi siap melakukan klasifikasi")
-    #     else:
-    #         QMessageBox.warning(self, "Status Model", "Model KNN belum ada\n\nSilakan jalankan Training > Jalankan Training terlebih dahulu\nPastikan folder dataset/train sudah berisi gambar")
+    def cek_status_model(self):
+        if klasifikasi.model_tersedia():
+            QMessageBox.information(
+                self, "Status Model",
+                "Model KNN sudah tersedia\nFile: model_knn.pkl\n\nAplikasi siap melakukan klasifikasi"
+            )
+        else:
+            QMessageBox.warning(
+                self, "Status Model",
+                "Model KNN belum ada\n\nSilakan jalankan Training > Jalankan Training terlebih dahulu\n"
+                "Pastikan folder dataset/train sudah berisi gambar"
+            )
 
-    # ====================== FUNGSI TRAINING ======================  # TODO: buat training.py & classification.py
-    # def jalankan_training(self):
-    #     folder_cek = [
-    #         os.path.join("dataset", "train", "matang"),
-    #         os.path.join("dataset", "train", "mentah"),
-    #         os.path.join("dataset", "train", "terlalu_matang")
-    #     ]
-    #
-    #     folder_kosong = []
-    #     for f in folder_cek:
-    #         if not os.path.exists(f):
-    #             folder_kosong.append(f)
-    #
-    #     if len(folder_kosong) > 0:
-    #         pesan = "Folder dataset tidak ditemukan:\n"
-    #         for f in folder_kosong:
-    #             pesan = pesan + "- " + f + "\n"
-    #         pesan = pesan + "\nBuat folder tersebut dan isi dengan gambar pisang"
-    #         QMessageBox.warning(self, "Folder Tidak Ditemukan", pesan)
-    #         return
-    #
-    #     self.label_info.setText("Sedang training, harap tunggu...")
-    #     QApplication.processEvents()
-    #
-    #     try:
-    #         import training
-    #         import importlib
-    #         importlib.reload(training)
-    #         self.label_info.setText("Training selesai! Model disimpan ke model_knn.pkl")
-    #         QMessageBox.information(self, "Training Selesai", "Model KNN berhasil ditraining dan disimpan\nFile: model_knn.pkl")
-    #     except Exception as e:
-    #         self.label_info.setText("Training gagal: " + str(e))
-    #         QMessageBox.warning(self, "Training Gagal", "Error: " + str(e))
+    # ====================== FUNGSI TRAINING ======================
+    def jalankan_training(self):
+        folder_cek = [
+            os.path.join("dataset", "train", "matang"),
+            os.path.join("dataset", "train", "mentah"),
+            os.path.join("dataset", "train", "terlalu-matang")
+        ]
+
+        folder_kosong = [f for f in folder_cek if not os.path.exists(f)]
+        if folder_kosong:
+            pesan = "Folder dataset tidak ditemukan:\n"
+            for f in folder_kosong:
+                pesan += "- " + f + "\n"
+            pesan += "\nBuat folder tersebut dan isi dengan gambar pisang"
+            QMessageBox.warning(self, "Folder Tidak Ditemukan", pesan)
+            return
+
+        self.label_info.setText("Sedang training, harap tunggu...")
+        QApplication.processEvents()
+
+        try:
+            import training
+            import importlib
+            importlib.reload(training)
+            hasil = training.jalankan_training()
+
+            pesan_selesai = f"Training selesai!\nJumlah data latih: {hasil['jumlah_latih']}"
+
+            self.label_info.setText("Training selesai! Model disimpan ke model_knn.pkl")
+            QMessageBox.information(self, "Training Selesai", pesan_selesai)
+            self.cek_model_tersedia()
+        except Exception as e:
+            self.label_info.setText("Training gagal: " + str(e))
+            QMessageBox.warning(self, "Training Gagal", "Error: " + str(e))
 
     # ====================== FUNGSI MENU FILE ======================
     def load_citra(self):
@@ -239,10 +242,14 @@ class AplikasiPisang(QMainWindow):
             return
 
         self.img_asli = img
+        self.mask = None
+        self.hasil_segmentasi = None
+        self.ciri_sekarang = None
         nama = file_path.split("/")[-1]
         self.label_nama.setText("Gambar: " + nama)
         self.label_info.setText("")
         self.judul_hasil.setText("Hasil Proses")
+        self.label_hasil.setText("Hasil Klasifikasi : -")
         self.tampilkan_gambar(img, self.label_asli)
 
     def save_hasil(self):
@@ -330,22 +337,26 @@ class AplikasiPisang(QMainWindow):
 
         self.label_info.setText("Ekstraksi ciri RGB, HSV, dan Area dari area objek selesai")
 
-    # ====================== FUNGSI KLASIFIKASI ======================  # TODO: buat feature_extraction.py & classification.py
-    # def proses_klasifikasi(self):
-    #     if self.ciri_sekarang is None:
-    #         QMessageBox.warning(self, "Peringatan", "Lakukan ekstraksi ciri terlebih dahulu")
-    #         return
-    #
-    #     if not klasifikasi.model_tersedia():
-    #         QMessageBox.warning(self, "Model Belum Ada", "Jalankan Training > Jalankan Training terlebih dahulu")
-    #         return
-    #
-    #     data_uji = fitur.ciri_ke_list(self.ciri_sekarang)
-    #     hasil = klasifikasi.klasifikasi_knn(data_uji)
-    #     self.label_hasil.setText("Hasil Klasifikasi : " + hasil)
-    #     self.label_info.setText("KNN K=5 selesai | model dari model_knn.pkl")
+    # ====================== FUNGSI KLASIFIKASI ======================
+    def proses_klasifikasi(self):
+        if self.ciri_sekarang is None:
+            QMessageBox.warning(self, "Peringatan", "Lakukan ekstraksi ciri terlebih dahulu")
+            return
 
-    
+        if not klasifikasi.model_tersedia():
+            QMessageBox.warning(
+                self, "Model Belum Ada",
+                "Jalankan Training > Jalankan Training terlebih dahulu"
+            )
+            return
+
+        try:
+            data_uji = fitur.ciri_ke_list(self.ciri_sekarang)
+            hasil = klasifikasi.klasifikasi_knn(data_uji)
+            self.label_hasil.setText("Hasil Klasifikasi : " + hasil)
+            self.label_info.setText("KNN K=5 selesai | model dari model_knn.pkl")
+        except Exception as e:
+            QMessageBox.warning(self, "Klasifikasi Gagal", "Error: " + str(e))
 
     # ====================== RESET ======================
     def reset(self):
@@ -358,17 +369,21 @@ class AplikasiPisang(QMainWindow):
         self.label_nama.setText("Belum ada gambar yang dimuat")
         self.label_hasil.setText("Hasil Klasifikasi : -")
         self.judul_hasil.setText("Hasil Proses")
-        # self.cek_model_tersedia()  # TODO: butuh classification.py
+        self.cek_model_tersedia()
         for i in range(7):
             self.tabel.setItem(i, 1, QTableWidgetItem(""))
 
-    # ====================== FUNGSI BANTU TAMPIL GAMBAR ======================
+    # ====================== FUNGSI BANTU ======================
     def tentang(self):
         QMessageBox.information(
             self,
             "Tentang",
-            "Aplikasi Klasifikasi Kematangan Buah Pisang \n"
-            "Menggunakan pengolahan citra digital untuk segmentasi dan ekstraksi ciri.",
+            "Aplikasi Klasifikasi Kematangan Buah Pisang\n\n"
+            "Metode: K-Nearest Neighbor (KNN) K=5\n"
+            "Fitur: RGB, HSV, Area\n"
+            "Segmentasi: Otsu Thresholding + Morfologi\n"
+            "Kelas: Mentah, Matang, Terlalu Matang\n\n"
+            "Referensi: Adenugraha et al., Jurnal Media Informatika Budidarma, 2022"
         )
 
     def tampilkan_gambar(self, img, label):
